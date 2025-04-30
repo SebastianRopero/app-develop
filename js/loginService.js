@@ -2,25 +2,61 @@ document.getElementById('loginForm').addEventListener("submit", function (e) {
     e.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    let mensaje = '';
-    let tipoAlerta = '';
-    if (email === '' || password === '') {
-        mensaje = 'Por favor completa todos los campos.'
-        tipoAlerta = 'warning'
-    }
-    else if (email === 'prueba@gmail.com' && password === '123456') {
-        mensaje = 'Inicio de sesion exitoso.'
-        tipoAlerta = 'success'
-    }
-    else {
-        mensaje = 'Coreo o contraseña incorrectos.'
-        tipoAlerta = 'danger'
-    }
-    let alerta = `       
-       <div class="alert alert-${tipoAlerta} alert-dismissible fade show" role="alert">
-        ${mensaje}
-         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-         </div>`;
-
-    document.getElementById('mensaje').innerHTML = alerta;
+    login(email, password)
 });
+
+function login(email, password) {
+    localStorage.removeItem('token')
+    let message = ''
+    let alertType = ''
+    const REQRES_ENDPOINT = 'https://reqres.in/api/login'
+    fetch(REQRES_ENDPOINT, {
+        method: 'POST',
+        headers: {
+            'Content-type': 'application/json',
+            'x-api-key': 'reqres-free-v1'
+        },
+        body: JSON.stringify({ email, password })
+    })
+        .then((response) => {
+            if (response.status == 200) {
+                alertType = 'success'
+                message = 'Inicio de Sesion exitoso'
+                alertBuilder(alertType, message)
+                localStorage.setItem('token','asdsad21s23d15as1d23a')
+                setTimeout(() =>{
+                    location.href = 'admin/dashboard.html'
+                }, 2000)//2000 ms = 2 segundos
+                
+            }
+            else {
+                alertType = 'danger'
+                message = 'Correo o contraseña invalida'
+                alertBuilder(alertType, message)
+            }
+
+            console.log('respuesta del servicio', response)
+            
+
+        })
+
+        .catch((error) => {
+            alertType = 'danger'
+            message = 'Ocurrio un error inesperado'
+            console.log('error en el servicio', error)
+            alertBuilder(alertType, message)
+        })
+
+    alertBuilder(alertType, message)
+
+}
+
+function alertBuilder(alertType, message) {
+    const alert = `       
+    <div class="alert alert-${alertType} alert-dismissible fade show" role="alert">
+     ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`;
+
+    document.getElementById('mensaje').innerHTML = alert;
+}
